@@ -616,6 +616,10 @@ pub fn add_liquidity<'b, 'c: 'info, 'info>(
     base_flag: Option<bool>,
 ) -> Result<(u64, u64, u64, u64)> {
     if *liquidity == 0 {
+        if base_flag.is_none() {
+            // when establishing a new position , liquidity allows for further additions
+            return Ok((0, 0, 0, 0));
+        }
         if base_flag.unwrap() {
             *liquidity = liquidity_math::get_liquidity_from_single_amount_0(
                 pool_state.sqrt_price_x64,
@@ -924,7 +928,7 @@ fn create_nft_with_metadata<'info>(
             pool_state_loader.key(),
             payer.key(),
             pool_state_loader.key(),
-            String::from("Novadex Concentrated Liquidity"),
+            String::from("Raydium Concentrated Liquidity"),
             String::from("RCL"),
             METADATA_URI.to_string(),
             Some(vec![Creator {
