@@ -193,9 +193,8 @@ pub fn swap_internal<'b, 'info>(
     let mut current_vaild_tick_array_start_index = first_vaild_tick_array_start_index;
 
     let mut tick_array_current = tick_array_states.pop_front().unwrap();
+    // find the first active tick array account
     for _ in 0..tick_array_states.len() {
-        // check tick_array account is owned by the pool
-        require_keys_eq!(tick_array_current.pool_id, pool_state.key());
         if tick_array_current.start_tick_index == current_vaild_tick_array_start_index {
             break;
         }
@@ -203,6 +202,8 @@ pub fn swap_internal<'b, 'info>(
             .pop_front()
             .ok_or(ErrorCode::NotEnoughTickArrayAccount)?;
     }
+    // check the first tick_array account is owned by the pool
+    require_keys_eq!(tick_array_current.pool_id, pool_state.key());
     // check first tick array account is correct
     require_eq!(
         tick_array_current.start_tick_index,
@@ -266,7 +267,7 @@ pub fn swap_internal<'b, 'info>(
                 tick_array_current = tick_array_states
                     .pop_front()
                     .ok_or(ErrorCode::NotEnoughTickArrayAccount)?;
-
+                // check the tick_array account is owned by the pool
                 require_keys_eq!(tick_array_current.pool_id, pool_state.key());
             }
             current_vaild_tick_array_start_index = next_initialized_tickarray_index.unwrap();
@@ -726,7 +727,9 @@ pub fn exact_internal<'b, 'c: 'info, 'info>(
         token_account_0: token_account_0.key(),
         token_account_1: token_account_1.key(),
         amount_0,
+        transfer_fee_0: 0,
         amount_1,
+        transfer_fee_1: 0,
         zero_for_one,
         sqrt_price_x64: pool_state.sqrt_price_x64,
         liquidity: pool_state.liquidity,
